@@ -4,7 +4,7 @@
 
 #include "bench.h"
 
-#define DICT_FILE "cities5000.txt"
+#define DICT_FILE "cities.txt"
 #define WORDMAX 256
 
 double tvgetf()
@@ -19,8 +19,6 @@ double tvgetf()
 
     return sec;
 }
-
-
 
 int bench_test(const tst_node *root, char *out_file, const int max)
 {
@@ -44,15 +42,15 @@ int bench_test(const tst_node *root, char *out_file, const int max)
         return 1;
     }
 
-    sgl = (char **)malloc(sizeof(char *) * max);
+    sgl = (char **) malloc(sizeof(char *) * max);
     while (fscanf(dict, "%s", word) != EOF) {
-        if (strlen(word) < 4) continue;
+        if (strlen(word) < 4)
+            continue;
         strncpy(prefix, word, 3);
         t1 = tvgetf();
         tst_search_prefix(root, prefix, sgl, &sidx, max);
         t2 = tvgetf();
-        //     fprintf(fp, "%d %.6f sec\n", idx, t2 - t1);
-        fprintf(fp, "%d %f sec\n", idx, (t2 - t1)*1000000);
+        fprintf(fp, "%d %f sec\n", idx, (t2 - t1) * 1000000);
         idx++;
     }
 

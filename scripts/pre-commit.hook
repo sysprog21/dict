@@ -1,12 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-ASTYLE_OPTS="--style=kr --indent=spaces=4"
-CPPCHECK_OPTS="-I. --error-exitcode=1 ."
+CPPCHECK_OPTS="-I. -I./include --error-exitcode=1 ."
 
 RETURN=0
-ASTYLE=$(which astyle)
+CLANG_FORMAT=$(which clang-format)
 if [ $? -ne 0 ]; then
-    echo "[!] astyle not installed. Unable to check source file format policy." >&2
+    echo "[!] clang-format not installed. Unable to check source file format policy." >&2
     exit 1
 fi
 
@@ -25,7 +24,7 @@ FILES=`git diff --cached --name-only --diff-filter=ACMR | grep -E "\.(c|cpp|h)$"
 for FILE in $FILES; do
     nf=`git checkout-index --temp $FILE | cut -f 1`
     newfile=`mktemp /tmp/${nf}.XXXXXX` || exit 1
-    $ASTYLE $ASTYLE_OPTS < $nf > $newfile 2>> /dev/null
+    $CLANG_FORMAT $nf > $newfile 2>> /dev/null
     $DIFF -u -p -B  "${nf}" "${newfile}"
     r=$?
     rm "${newfile}"
@@ -38,8 +37,8 @@ done
 
 if [ $RETURN -eq 1 ]; then
     echo "" >&2
-    echo "Make sure you have run astyle as the following:" >&2
-    echo "    astyle $ASTYLE_OPTS --suffix=none $FILE" >&2
+    echo "Make sure you indent as the following:" >&2
+    echo "    clang-format -i $FILE" >&2
     echo
 fi
 

@@ -2,7 +2,7 @@ TESTS = test_cpy test_ref
 
 TEST_DATA = s Tai
 
-CFLAGS = -Wall -Werror -g
+CFLAGS = -O0 -Wall -Werror -g
 
 # Control the build verbosity                                                   
 ifeq ("$(VERBOSE)","1")
@@ -24,7 +24,7 @@ $(GIT_HOOKS):
 	@echo
 
 OBJS_LIB = \
-    tst.o
+    tst.o bloom.o
 
 OBJS := \
     $(OBJS_LIB) \
@@ -35,7 +35,7 @@ deps := $(OBJS:%.o=.%.o.d)
 
 test_%: test_%.o $(OBJS_LIB)
 	$(VECHO) "  LD\t$@\n"
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+	$(Q)$(CC) $(LDFLAGS)  -o $@ $^ -lm
 
 %.o: %.c
 	$(VECHO) "  CC\t$@\n"
@@ -52,11 +52,12 @@ test:  $(TESTS)
 
 bench: $(TESTS)
 	@for test in $(TESTS); do\
-		./$$test --bench; \
-		done
+		./$$test --bench $(TEST_DATA); \
+	done
 
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
 	rm -f  bench_cpy.txt bench_ref.txt ref.txt cpy.txt caculate
+
 -include $(deps)

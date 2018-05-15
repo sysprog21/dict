@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "tst.h"
 #include "bench.c"
+#include "tst.h"
 /** constants insert, delete, max word(s) & stack nodes */
 enum { INS, DEL, WRDMAX = 256, STKMAX = 512, LMAX = 1024 };
 #define REF INS
@@ -12,21 +12,6 @@ enum { INS, DEL, WRDMAX = 256, STKMAX = 512, LMAX = 1024 };
 
 #define BENCH_TEST_FILE "bench_cpy.txt"
 
-/* timing helper function */
-/*
-static double tvgetf(void)
-{
-    struct timespec ts;
-    double sec;
-
-    clock_gettime(CLOCK_REALTIME, &ts);
-    sec = ts.tv_nsec;
-    sec /= 1e9;
-    sec += ts.tv_sec;
-
-    return sec;
-}
-*/
 /* simple trim '\n' from end of buffer filled by fgets */
 static void rmcrlf(char *s)
 {
@@ -45,12 +30,7 @@ int main(int argc, char **argv)
     int rtn = 0, idx = 0, sidx = 0;
     double t1, t2;
 
-    FILE *fp;
-    /*
-        if(argc>1 && strcmp(argv[1],"--bench")==0)
-            fp = fopen("cities.txt","r");
-        else*/
-    fp = fopen(IN_FILE, "r");
+    FILE *fp = fopen(IN_FILE, "r");
 
 
     if (!fp) { /* prompt, open, validate file for reading */
@@ -71,8 +51,7 @@ int main(int argc, char **argv)
     t2 = tvgetf();
 
     fclose(fp);
-    printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2-t1);
-//***********************distribution
+    printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
 
     if (argc == 2 && strcmp(argv[1], "--bench") == 0) {
         int stat = bench_test(root, BENCH_TEST_FILE, LMAX);
@@ -80,17 +59,14 @@ int main(int argc, char **argv)
         return stat;
     }
 
-//*********************output
-
     FILE *output;
     output = fopen("cpy.txt", "a");
-    if(output!=NULL) {
-        fprintf(output, "%.6f\n",t2-t1);
+    if (output != NULL) {
+        fprintf(output, "%.6f\n", t2 - t1);
         fclose(output);
     } else
         printf("open file error\n");
 
-//***********
     for (;;) {
         char *p;
         printf(
@@ -102,7 +78,7 @@ int main(int argc, char **argv)
             " q  quit, freeing all data\n\n"
             "choice: ");
 
-        if(argc>1 && strcmp(argv[1],"--bench")==0)//a for auto
+        if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
             strcpy(word, argv[2]);
         else
             fgets(word, sizeof word, stdin);
@@ -111,7 +87,7 @@ int main(int argc, char **argv)
         switch (*word) {
         case 'a':
             printf("enter word to add: ");
-            if(argc>1 && strcmp(argv[1],"--bench")==0)
+            if (argc > 1 && strcmp(argv[1], "--bench") == 0)
                 strcpy(word, argv[3]);
             else if (!fgets(word, sizeof word, stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
@@ -129,7 +105,7 @@ int main(int argc, char **argv)
             } else
                 printf("  %s - already exists in list.\n", (char *) res);
 
-            if(argc>1 && strcmp(argv[1],"--bench")==0)//a for auto
+            if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
 
             break;
@@ -150,7 +126,7 @@ int main(int argc, char **argv)
             break;
         case 's':
             printf("find words matching prefix (at least 1 char): ");
-            if(argc>1 && strcmp(argv[1],"--bench")==0)
+            if (argc > 1 && strcmp(argv[1], "--bench") == 0)
                 strcpy(word, argv[3]);
             else if (!fgets(word, sizeof word, stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
@@ -167,7 +143,7 @@ int main(int argc, char **argv)
             } else
                 printf("  %s - not found\n", word);
 
-            if(argc>1 && strcmp(argv[1],"--bench")==0)//a for auto
+            if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
 
             break;
@@ -190,7 +166,7 @@ int main(int argc, char **argv)
                 idx--;
             }
             break;
-quit:
+        quit:
         case 'q':
             tst_free_all(root);
             return 0;

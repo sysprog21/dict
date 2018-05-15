@@ -56,7 +56,7 @@ static void *tst_del_word(tst_node **root,
                           tst_stack *stk,
                           const int freeword)
 {
-    tst_node *victim = node;          /* begin deletion w/victim */
+    tst_node *victim = node;               /* begin deletion w/victim */
     tst_node *parent = tst_stack_pop(stk); /* parent to victim */
 
     if (!victim->refcnt) {            /* if last occurrence */
@@ -68,7 +68,7 @@ static void *tst_del_word(tst_node **root,
          * found with children.
          */
         while (!parent->lokid && !parent->hikid && !victim->lokid &&
-                !victim->hikid) {
+               !victim->hikid) {
             parent->eqkid = NULL;
             free(victim);
             victim = parent;
