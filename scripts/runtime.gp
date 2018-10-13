@@ -1,7 +1,7 @@
-reset                                                                           
+reset
 set ylabel 'time(sec)'
 set style fill solid
-set key center top 
+set key center top
 set title 'perfomance comparison'
 set term png enhanced font 'Verdana,10'
 set output 'runtime.png'
