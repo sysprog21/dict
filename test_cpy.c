@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     FILE *fp = fopen(IN_FILE, "r");
 
     if (!fp) { /* prompt, open, validate file for reading */
-        fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
+        fprintf(stderr, "error: file open failed '%s'.\n", IN_FILE);
         return 1;
     }
 
@@ -196,16 +196,15 @@ int main(int argc, char **argv)
                 idx--;
             }
             break;
-        quit:
         case 'q':
-            tst_free_all(root);  // TODO tst_free(root);
-            return 0;
-            break;
+            goto quit;
         default:
             fprintf(stderr, "error: invalid selection.\n");
             break;
         }
     }
+quit:
+    tst_free_all(root);
     bloom_free(bloom);
     return 0;
 }

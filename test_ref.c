@@ -205,16 +205,15 @@ int main(int argc, char **argv)
                 idx--;
             }
             break;
-        quit:
         case 'q':
-            tst_free(root);
-            return 0;
-            break;
+            goto quit;
         default:
             fprintf(stderr, "error: invalid selection.\n");
             break;
         }
     }
+quit:
+    tst_free(root);
     bloom_free(bloom);
     return 0;
 }
