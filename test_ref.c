@@ -37,8 +37,9 @@ int main(int argc, char **argv)
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
     int rtn = 0, idx = 0, sidx = 0;
-    FILE *fp = fopen(IN_FILE, "r");
     double t1, t2;
+
+    FILE *fp = fopen(IN_FILE, "r");
 
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
@@ -68,6 +69,20 @@ int main(int argc, char **argv)
     fclose(fp);
     printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
 
+    if (argc == 2 && strcmp(argv[1], "--bench") == 0) {
+        int stat = bench_test(root, BENCH_TEST_FILE, LMAX);
+        tst_free(root);
+        return stat;
+    }
+
+    FILE *output;
+    output = fopen("ref.txt", "a");
+    if (output != NULL) {
+        fprintf(output, "%.6f\n", t2 - t1);
+        fclose(output);
+    } else
+        printf("open file error\n");
+
     for (;;) {
         char *p;
         printf(
@@ -90,7 +105,6 @@ int main(int argc, char **argv)
             printf("enter word to add: ");
             if (argc > 1 && strcmp(argv[1], "--bench") == 0)
                 strcpy(Top, argv[3]);
-
             else if (!fgets(Top, sizeof word, stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
                 break;
@@ -169,6 +183,7 @@ int main(int argc, char **argv)
 
             if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
+
             break;
         case 'd':
             printf("enter word to del: ");
