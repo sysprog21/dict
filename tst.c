@@ -215,17 +215,17 @@ static void *tst_del_word(tst_node **root,
  *  non-zero), NULL on allocation failure on insert, or on successful removal
  *  of 's' from tree.
  */
-void *tst_ins_del(tst_node **root, char *const *s, const int del, const int cpy)
+void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy)
 {
     int diff;
-    const char *p = *s;
+    const char *p = s;
     tst_stack stk = {.data = {NULL}, .idx = 0};
     tst_node *curr, **pcurr;
 
-    if (!root || !*s)
-        return NULL;                 /* validate parameters */
-    if (strlen(*s) + 1 > STKMAX / 2) /* limit length to 1/2 STKMAX */
-        return NULL;                 /* 128 char word length is plenty */
+    if (!root || !s)
+        return NULL;                /* validate parameters */
+    if (strlen(s) + 1 > STKMAX / 2) /* limit length to 1/2 STKMAX */
+        return NULL;                /* 128 char word length is plenty */
 
     pcurr = root;                     /* start at root */
     while ((curr = *pcurr)) {         /* iterate to insertion node  */
@@ -273,14 +273,14 @@ void *tst_ins_del(tst_node **root, char *const *s, const int del, const int cpy)
          */
         if (*p++ == 0) {
             if (cpy) { /* allocate storage for 's' */
-                const char *eqdata = strdup(*s);
+                const char *eqdata = strdup(s);
                 if (!eqdata)
                     return NULL;
                 curr->eqkid = (tst_node *) eqdata;
                 return (void *) eqdata;
             } else { /* save pointer to 's' (allocated elsewhere) */
-                curr->eqkid = (tst_node *) *s;
-                return (void *) *s;
+                curr->eqkid = (tst_node *) s;
+                return (void *) s;
             }
         }
         pcurr = &(curr->eqkid);

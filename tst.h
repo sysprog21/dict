@@ -18,10 +18,7 @@ typedef struct tst_node tst_node;
  *  non-zero), NULL on allocation failure on insert, or on successful removal
  *  of 's' from tree.
  */
-void *tst_ins_del(tst_node **root,
-                  char *const *s,
-                  const int del,
-                  const int cpy);
+void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy);
 
 /** tst_search(), non-recursive find of a string in ternary tree.
  *  returns pointer to 's' on success, NULL otherwise.

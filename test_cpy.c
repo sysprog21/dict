@@ -51,8 +51,7 @@ int main(int argc, char **argv)
     bloom_t bloom = bloom_create(TableSize);
 
     while ((rtn = fscanf(fp, "%s", word)) != EOF) {
-        char *p = word;
-        if (!tst_ins_del(&root, &p, INS, CPY)) {
+        if (!tst_ins_del(&root, word, INS, CPY)) {
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
             fclose(fp);
             return 1;
@@ -79,7 +78,6 @@ int main(int argc, char **argv)
         printf("open file error\n");
 
     for (;;) {
-        char *p;
         printf(
             "\nCommands:\n"
             " a  add word to the tree\n"
@@ -94,7 +92,6 @@ int main(int argc, char **argv)
         else
             fgets(word, sizeof word, stdin);
 
-        p = NULL;
         switch (*word) {
         case 'a':
             printf("enter word to add: ");
@@ -105,13 +102,12 @@ int main(int argc, char **argv)
                 break;
             }
             rmcrlf(word);
-            p = word;
             t1 = tvgetf();
-            if (bloom_test(bloom, p) == 1) /* if detected by filter, skip */
+            if (bloom_test(bloom, word) == 1) /* if detected by filter, skip */
                 res = NULL;
             else { /* update via tree traversal and bloom filter */
-                bloom_add(bloom, p);
-                res = tst_ins_del(&root, &p, INS, CPY);
+                bloom_add(bloom, word);
+                res = tst_ins_del(&root, word, INS, CPY);
             }
             t2 = tvgetf();
             if (res) {
@@ -184,10 +180,9 @@ int main(int argc, char **argv)
                 break;
             }
             rmcrlf(word);
-            p = word;
             printf("  deleting %s\n", word);
             t1 = tvgetf();
-            res = tst_ins_del(&root, &p, DEL, CPY);
+            res = tst_ins_del(&root, word, DEL, CPY);
             t2 = tvgetf();
             if (res)
                 printf("  delete failed.\n");
