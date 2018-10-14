@@ -6,6 +6,7 @@
 
 #define DICT_FILE "cities.txt"
 #define WORDMAX 256
+#define PREFIX_LEN 3
 
 double tvgetf()
 {
@@ -22,7 +23,7 @@ double tvgetf()
 
 int bench_test(const tst_node *root, char *out_file, const int max)
 {
-    char prefix[4] = "";
+    char prefix[PREFIX_LEN + 1] = "";
     char word[WORDMAX] = "";
     char **sgl;
     FILE *fp = fopen(out_file, "w");
@@ -44,13 +45,13 @@ int bench_test(const tst_node *root, char *out_file, const int max)
 
     sgl = (char **) malloc(sizeof(char *) * max);
     while (fscanf(dict, "%s", word) != EOF) {
-        if (strlen(word) < sizeof(prefix))
+        if (strlen(word) < sizeof(prefix) - 1)
             continue;
-        snprintf(prefix, sizeof(prefix), "%s", word);
+        strncpy(prefix, word, sizeof(prefix) - 1);
         t1 = tvgetf();
         tst_search_prefix(root, prefix, sgl, &sidx, max);
         t2 = tvgetf();
-        fprintf(fp, "%d %f msec\n", idx, (t2 - t1) * 1000000);
+        fprintf(fp, "%d %f msec\n", idx, (t2 - t1) * 1000);
         idx++;
     }
 
