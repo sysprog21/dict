@@ -250,6 +250,9 @@ void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy)
             tst_stack_push(&stk, curr); /* push node on stack for del */
     }
 
+    if (del)
+        return (void *) -1;
+
     /* if not duplicate, insert remaining chars into tree rooted at curr */
     for (;;) {
         /* allocate memory for node, and fill. use calloc (or include
