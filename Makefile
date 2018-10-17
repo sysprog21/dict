@@ -55,9 +55,23 @@ bench: $(TESTS)
 		./$$test --bench $(TEST_DATA); \
 	done
 
+plot: $(TESTS)
+	echo 3 | sudo tee /proc/sys/vm/drop_caches;
+	perf stat --repeat 100 \
+                -e cache-misses,cache-references,instructions,cycles \
+                ./test_cpy --bench $(TEST_DATA) \
+		| grep 'ternary_tree, loaded 259112 words'\
+		| grep -Eo '[0-9]+\.[0-9]+' > cpy_data.csv
+	perf stat --repeat 100 \
+                -e cache-misses,cache-references,instructions,cycles \
+				./test_ref --bench $(TEST_DATA)\
+		| grep 'ternary_tree, loaded 259112 words'\
+		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
+
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
 	rm -f  bench_cpy.txt bench_ref.txt ref.txt cpy.txt caculate
+	rm -f *.csv
 
 -include $(deps)
