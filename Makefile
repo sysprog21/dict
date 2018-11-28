@@ -54,7 +54,6 @@ bench: $(TESTS)
 	@for test in $(TESTS); do\
 		./$$test --bench $(TEST_DATA); \
 	done
-	gnuplot scripts/runtimept.gp
 
 plot: $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
