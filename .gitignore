@@ -2,3 +2,7 @@
 *.o.d
 test_cpy
 test_ref
+cpy.txt
+ref.txt
+bench_cpy.txt
+bench_ref.txt

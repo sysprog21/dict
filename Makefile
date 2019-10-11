@@ -71,7 +71,7 @@ plot: $(TESTS)
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
-	rm -f  bench_cpy.txt bench_ref.txt ref.txt cpy.txt caculate
-	rm -f *.csv
+	$(RM) bench_cpy.txt bench_ref.txt ref.txt cpy.txt
+	$(RM) *.csv
 
 -include $(deps)
