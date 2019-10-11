@@ -2,7 +2,7 @@
 #include "stdint.h"
 #include "stdlib.h"
 
-unsigned int djb2(const void *_str)
+static unsigned int djb2(const void *_str)
 {
     const char *str = _str;
     unsigned int hash = 5381;
@@ -13,7 +13,7 @@ unsigned int djb2(const void *_str)
     return hash;
 }
 
-unsigned int jenkins(const void *_str)
+static unsigned int jenkins(const void *_str)
 {
     const char *key = _str;
     unsigned int hash = 0;

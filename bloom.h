@@ -37,8 +37,4 @@ void bloom_add(bloom_t filter, const void *item);
  * if the item was probably added before. */
 bool bloom_test(bloom_t filter, const void *item);
 
-/* hash functions */
-unsigned int djb2(const void *);
-unsigned int jenkins(const void *);
-
 #endif
