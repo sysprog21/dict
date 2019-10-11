@@ -51,8 +51,9 @@ test:  $(TESTS)
 				./test_ref --bench $(TEST_DATA)
 
 bench: $(TESTS)
-	@for test in $(TESTS); do\
-		./$$test --bench $(TEST_DATA); \
+	@for test in $(TESTS); do \
+	    echo -n "$$test => "; \
+	    ./$$test --bench $(TEST_DATA); \
 	done
 
 plot: $(TESTS)
