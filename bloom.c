@@ -2,6 +2,17 @@
 #include "stdint.h"
 #include "stdlib.h"
 
+struct bloom_hash {
+    hash_function func;
+    struct bloom_hash *next;
+};
+
+struct bloom_filter {
+    struct bloom_hash *func;
+    void *bits;
+    size_t size;
+};
+
 static unsigned int djb2(const void *_str)
 {
     const char *str = _str;

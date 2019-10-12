@@ -7,17 +7,6 @@
 typedef unsigned int (*hash_function)(const void *data);
 typedef struct bloom_filter *bloom_t;
 
-struct bloom_hash {
-    hash_function func;
-    struct bloom_hash *next;
-};
-
-struct bloom_filter {
-    struct bloom_hash *func;
-    void *bits;
-    size_t size;
-};
-
 /* Creates a new bloom filter with no hash functions and size * 8 bits. */
 bloom_t bloom_create(size_t size);
 
