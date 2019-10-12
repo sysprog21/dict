@@ -120,7 +120,6 @@ int main(int argc, char **argv)
 
             if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
-
             break;
         case 'f':
             printf("find word in tree: ");
@@ -172,7 +171,6 @@ int main(int argc, char **argv)
 
             if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
-
             break;
         case 'd':
             printf("enter word to del: ");
@@ -199,6 +197,7 @@ int main(int argc, char **argv)
             break;
         }
     }
+
 quit:
     tst_free_all(root);
     bloom_free(bloom);
