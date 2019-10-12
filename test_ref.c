@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     t2 = tvgetf();
     fclose(fp);
     printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
-    return 0;
+
     if (argc == 2 && strcmp(argv[1], "--bench") == 0) {
         int stat = bench_test(root, BENCH_TEST_FILE, LMAX);
         tst_free(root);
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
             rmcrlf(Top);
 
             t1 = tvgetf();
-            if (bloom_test(bloom, Top) == 1) /* if detected by filter, skip */
+            if (bloom_test(bloom, Top)) /* if detected by filter, skip */
                 res = NULL;
             else { /* update via tree traversal and bloom filter */
                 bloom_add(bloom, Top);
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
             rmcrlf(word);
             t1 = tvgetf();
 
-            if (bloom_test(bloom, word) == 1) {
+            if (bloom_test(bloom, word)) {
                 t2 = tvgetf();
                 printf("  Bloomfilter found %s in %.6f sec.\n", word, t2 - t1);
                 printf(
