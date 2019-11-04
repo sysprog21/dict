@@ -44,7 +44,7 @@ bloom_t bloom_create(size_t size)
 {
     bloom_t res = calloc(1, sizeof(struct bloom_filter));
     res->size = size;
-    res->bits = malloc(size);
+    res->bits = calloc(((size + 7) & -8) >> 3, 1);
 
     bloom_add_hash(res, djb2);
     bloom_add_hash(res, jenkins);
@@ -87,7 +87,7 @@ void bloom_add(bloom_t filter, const void *item)
     while (h) {
         unsigned int hash = h->func(item);
         hash %= filter->size;
-        bits[hash] = 1;
+        bits[hash >> 3] |= 0x40 >> (hash & 7);
         h = h->next;
     }
 }
@@ -99,7 +99,7 @@ bool bloom_test(bloom_t filter, const void *item)
     while (h) {
         unsigned int hash = h->func(item);
         hash %= filter->size;
-        if (!(bits[hash])) {
+        if (!(bits[hash >> 3] & (0x40 >> (hash & 7)))) {
             return false;
         }
         h = h->next;
