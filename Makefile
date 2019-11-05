@@ -1,4 +1,4 @@
-TESTS = test_cpy test_ref
+TESTS = test_common
 
 TEST_DATA = s Tai
 
@@ -28,8 +28,7 @@ OBJS_LIB = \
 
 OBJS := \
     $(OBJS_LIB) \
-    test_cpy.o \
-    test_ref.o
+    test_common.o \
 
 deps := $(OBJS:%.o=.%.o.d)
 
@@ -41,14 +40,15 @@ test_%: test_%.o $(OBJS_LIB)
 	$(VECHO) "  CC\t$@\n"
 	$(Q)$(CC) -o $@ $(CFLAGS) -c -MMD -MF .$@.d $<
 
+
 test:  $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-                ./test_cpy --bench $(TEST_DATA)
+                ./test_common --bench CPY $(TEST_DATA)
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-				./test_ref --bench $(TEST_DATA)
+				./test_common --bench REF $(TEST_DATA)
 
 bench: $(TESTS)
 	@for test in $(TESTS); do \
@@ -60,12 +60,12 @@ plot: $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-                ./test_cpy --bench $(TEST_DATA) \
+                ./test_common --bench CPY $(TEST_DATA) \
 		| grep 'ternary_tree, loaded 259112 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > cpy_data.csv
 	perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-				./test_ref --bench $(TEST_DATA)\
+				./test_common --bench REF $(TEST_DATA)\
 		| grep 'ternary_tree, loaded 259112 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
 
