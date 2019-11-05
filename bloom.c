@@ -44,7 +44,7 @@ bloom_t bloom_create(size_t size)
 {
     bloom_t res = calloc(1, sizeof(struct bloom_filter));
     res->size = size;
-    res->bits = calloc(((size + 7) & -8) >> 3, 1);
+    res->bits = calloc((size + 7) >> 3, 1);
 
     bloom_add_hash(res, djb2);
     bloom_add_hash(res, jenkins);
