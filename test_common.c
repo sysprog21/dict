@@ -227,6 +227,7 @@ int main(int argc, char **argv)
     }
 
 quit:
+    free(pool);
     tst_free(root);
     bloom_free(bloom);
     return 0;
