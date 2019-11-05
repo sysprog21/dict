@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    if (!strcmp(argv[1], "CPY") || (argc == 3 && !strcmp(argv[2], "CPY"))) {
+    if (!strcmp(argv[1], "CPY") || (argc > 2 && !strcmp(argv[2], "CPY"))) {
         CPYmask = 0;
         REF = DEL;
         printf("CPY mechanism\n");
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     fclose(fp);
     printf("ternary_tree, loaded %d words in %.6f sec\n", idx, t2 - t1);
 
-    if (argc > 2 && strcmp(argv[1], "--bench") == 0) {
+    if (argc == 3 && strcmp(argv[1], "--bench") == 0) {
         int stat = bench_test(root, BENCH_TEST_FILE, LMAX);
         tst_free(root);
         return stat;
@@ -114,15 +114,15 @@ int main(int argc, char **argv)
             "choice: ");
 
         if (argc > 2 && strcmp(argv[1], "--bench") == 0)  // a for auto
-            strcpy(word, argv[2]);
+            strcpy(word, argv[3]);
         else
             fgets(word, sizeof word, stdin);
 
         switch (*word) {
         case 'a':
             printf("enter word to add: ");
-            if (argc > 1 && strcmp(argv[1], "--bench") == 0)
-                strcpy(Top, argv[3]);
+            if (argc > 2 && strcmp(argv[1], "--bench") == 0)
+                strcpy(Top, argv[4]);
             else if (!fgets(Top, sizeof word, stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
                 break;
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
             } else
                 printf("  %s - already exists in list.\n", (char *) res);
 
-            if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
+            if (argc > 2 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
             break;
         case 'f':
@@ -179,8 +179,8 @@ int main(int argc, char **argv)
         case 's':
             printf("find words matching prefix (at least 1 char): ");
 
-            if (argc > 1 && strcmp(argv[1], "--bench") == 0)
-                strcpy(word, argv[3]);
+            if (argc > 2 && strcmp(argv[1], "--bench") == 0)
+                strcpy(word, argv[4]);
             else if (!fgets(word, sizeof word, stdin)) {
                 fprintf(stderr, "error: insufficient input.\n");
                 break;
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
             } else
                 printf("  %s - not found\n", word);
 
-            if (argc > 1 && strcmp(argv[1], "--bench") == 0)  // a for auto
+            if (argc > 2 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;
             break;
         case 'd':
