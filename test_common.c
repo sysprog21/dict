@@ -72,6 +72,9 @@ int main(int argc, char **argv)
 
 
     while ((rtn = fscanf(fp, "%s", Top)) != EOF) {
+        int len = strlen(Top);
+        len -= (Top[len - 1] == ',');
+        Top[len] = '\0';
         /* insert reference to each string */
         if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
@@ -80,7 +83,7 @@ int main(int argc, char **argv)
         }
         bloom_add(bloom, Top);
         idx++;
-        Top += (strlen(Top) + 1) & CPYmask;
+        Top += (len + 1) & CPYmask;
     }
     t2 = tvgetf();
     fclose(fp);
