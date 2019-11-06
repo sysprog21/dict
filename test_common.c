@@ -228,7 +228,12 @@ int main(int argc, char **argv)
 
 quit:
     free(pool);
-    tst_free(root);
+    /* for REF mechanism */
+    if (CPYmask)
+        tst_free(root);
+    else
+        tst_free_all(root);
+
     bloom_free(bloom);
     return 0;
 }
