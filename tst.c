@@ -420,13 +420,7 @@ void tst_free_all(tst_node *p)
 /** free the ternary search tree rooted at p, data storage external. */
 void tst_free(tst_node *p)
 {
-    if (!p)
-        return;
-    tst_free(p->lokid);
-    if (p->key)
-        tst_free(p->eqkid);
-    tst_free(p->hikid);
-    free(p);
+    tst_free_all(p);
 }
 
 /** access functions tst_get_key(), tst_get_refcnt, & tst_get_string().
