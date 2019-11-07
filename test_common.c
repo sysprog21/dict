@@ -71,12 +71,14 @@ int main(int argc, char **argv)
     }
 
     char buf[WORDMAX];
+    memset(buf, '\0', WORDMAX);
     while (fgets(buf, WORDMAX, fp)) {
         int i;
         for (i = 0; *(buf + i) && *(buf + i) != ','; i++)
             ;
         buf[strlen(buf) - 1] = '\0';
         buf[i] = '\0';
+        memset(buf, '\0', WORDMAX);
         strcpy(Top, buf);
         strcpy(Top + i + 1, buf + i + 2);
         while (*Top) {
