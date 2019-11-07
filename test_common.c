@@ -78,9 +78,9 @@ int main(int argc, char **argv)
             ;
         buf[strlen(buf) - 1] = '\0';
         buf[i] = '\0';
-        memset(buf, '\0', WORDMAX);
         strcpy(Top, buf);
         strcpy(Top + i + 1, buf + i + 2);
+        memset(buf, '\0', WORDMAX);
         while (*Top) {
             if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
                 fprintf(stderr, "error: memory exhausted, tst_insert.\n");
