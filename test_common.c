@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     char word[WRDMAX] = "";
     char *sgl[LMAX] = {NULL};
     tst_node *root = NULL, *res = NULL;
-    int rtn = 0, idx = 0, sidx = 0;
+    int idx = 0, sidx = 0;
     double t1, t2;
     int CPYmask = -1;
     if (argc < 2) {
@@ -70,20 +70,25 @@ int main(int argc, char **argv)
         Top = pool;
     }
 
-
-    while ((rtn = fscanf(fp, "%s", Top)) != EOF) {
-        int len = strlen(Top);
-        len -= (Top[len - 1] == ',');
-        Top[len] = '\0';
-        /* insert reference to each string */
-        if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
-            fprintf(stderr, "error: memory exhausted, tst_insert.\n");
-            fclose(fp);
-            return 1;
+    char buf[WORDMAX];
+    while (fgets(buf, WORDMAX, fp)) {
+        int i;
+        for (i = 0; *(buf + i) && *(buf + i) != ','; i++)
+            ;
+        buf[strlen(buf) - 1] = '\0';
+        buf[i] = '\0';
+        strcpy(Top, buf);
+        strcpy(Top + i + 1, buf + i + 2);
+        while (*Top) {
+            if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
+                fprintf(stderr, "error: memory exhausted, tst_insert.\n");
+                fclose(fp);
+                return 1;
+            }
+            bloom_add(bloom, Top);
+            idx++;
+            Top += (strlen(Top) + 1) & CPYmask;
         }
-        bloom_add(bloom, Top);
-        idx++;
-        Top += (len + 1) & CPYmask;
     }
     t2 = tvgetf();
     fclose(fp);
