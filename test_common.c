@@ -70,16 +70,18 @@ int main(int argc, char **argv)
         Top = pool;
     }
 
+    int offset = 0;
     char buf[WORDMAX];
     memset(buf, '\0', WORDMAX);
     while (fgets(buf, WORDMAX, fp)) {
-        int i;
-        for (i = 0; *(buf + i) && *(buf + i) != ','; i++)
-            ;
-        buf[strlen(buf) - 1] = '\0';
-        buf[i] = '\0';
-        strcpy(Top, buf);
-        strcpy(Top + i + 1, buf + i + 2);
+        Top -= offset & ~CPYmask;
+        offset = 0;
+        for (int i = 0, j = 0; buf[i + offset]; i++) {
+            Top[i] =
+                (buf[i + j] == ',' || buf[i + j] == '\n') ? '\0' : buf[i + j];
+            j += (buf[i + j] == ',');
+        }
+
         memset(buf, '\0', WORDMAX);
         while (*Top) {
             if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
@@ -89,7 +91,9 @@ int main(int argc, char **argv)
             }
             bloom_add(bloom, Top);
             idx++;
-            Top += (strlen(Top) + 1) & CPYmask;
+            int len = strlen(Top);
+            offset += len + 1;
+            Top += len + 1;
         }
     }
     t2 = tvgetf();
