@@ -99,6 +99,7 @@ int main(int argc, char **argv)
     if (argc == 3 && strcmp(argv[1], "--bench") == 0) {
         int stat = bench_test(root, BENCH_TEST_FILE, LMAX);
         tst_free(root);
+        free(pool);
         return stat;
     }
 
