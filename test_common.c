@@ -70,19 +70,14 @@ int main(int argc, char **argv)
         Top = pool;
     }
 
-    int offset = 0;
     char buf[WORDMAX];
-    memset(buf, '\0', WORDMAX);
     while (fgets(buf, WORDMAX, fp)) {
-        Top -= offset & ~CPYmask;
-        offset = 0;
+        int offset = 0;
         for (int i = 0, j = 0; buf[i + offset]; i++) {
             Top[i] =
                 (buf[i + j] == ',' || buf[i + j] == '\n') ? '\0' : buf[i + j];
             j += (buf[i + j] == ',');
         }
-
-        memset(buf, '\0', WORDMAX);
         while (*Top) {
             if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
                 fprintf(stderr, "error: memory exhausted, tst_insert.\n");
@@ -95,6 +90,8 @@ int main(int argc, char **argv)
             offset += len + 1;
             Top += len + 1;
         }
+        Top -= offset & ~CPYmask;
+        memset(Top, '\0', WORDMAX);
     }
     t2 = tvgetf();
     fclose(fp);
