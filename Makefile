@@ -48,7 +48,7 @@ test:  $(TESTS)
                 ./test_common --bench CPY $(TEST_DATA)
 	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-				./test_common --bench REF $(TEST_DATA)
+	        ./test_common --bench REF $(TEST_DATA)
 
 bench: $(TESTS)
 	@for test in $(TESTS); do \
