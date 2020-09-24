@@ -151,8 +151,7 @@ int main(int argc, char **argv)
                 Top += (strlen(Top) + 1) & CPYmask;
                 printf("  %s - inserted in %.10f sec. (%d words in tree)\n",
                        (char *) res, t2 - t1, idx);
-            } else
-                printf("  %s - already exists in list.\n", (char *) res);
+            }
 
             if (argc > 2 && strcmp(argv[1], "--bench") == 0)  // a for auto
                 goto quit;

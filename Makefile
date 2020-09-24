@@ -43,10 +43,10 @@ test_%: test_%.o $(OBJS_LIB)
 
 test:  $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
-	perf stat --repeat 100 \
+	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
                 ./test_common --bench CPY $(TEST_DATA)
-	perf stat --repeat 100 \
+	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
 				./test_common --bench REF $(TEST_DATA)
 
@@ -58,15 +58,15 @@ bench: $(TESTS)
 
 plot: $(TESTS)
 	echo 3 | sudo tee /proc/sys/vm/drop_caches;
-	perf stat --repeat 100 \
+	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
                 ./test_common --bench CPY $(TEST_DATA) \
-		| grep 'ternary_tree, loaded 259112 words'\
+		| grep 'ternary_tree, loaded 206849 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > cpy_data.csv
-	perf stat --repeat 100 \
+	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
 				./test_common --bench REF $(TEST_DATA)\
-		| grep 'ternary_tree, loaded 259112 words'\
+		| grep 'ternary_tree, loaded 206849 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
 
 clean:
