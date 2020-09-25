@@ -51,9 +51,15 @@ test:  $(TESTS)
 	        ./test_common --bench REF $(TEST_DATA)
 
 bench: $(TESTS)
+	@echo "COPY mechanism"
 	@for test in $(TESTS); do \
 	    echo -n "$$test => "; \
-	    ./$$test --bench $(TEST_DATA); \
+	    ./$$test --bench CPY $(TEST_DATA) | grep "searched prefix "; \
+	done
+	@echo "REFERENCE mechanism"
+	@for test in $(TESTS); do \
+	    echo -n "$$test => "; \
+	    ./$$test --bench REF $(TEST_DATA) | grep "searched prefix "; \
 	done
 
 plot: $(TESTS)
