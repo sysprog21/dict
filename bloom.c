@@ -87,7 +87,7 @@ void bloom_add(bloom_t filter, const void *item)
     while (h) {
         unsigned int hash = h->func(item);
         hash %= filter->size;
-        bits[hash >> 3] |= 0x40 >> (hash & 7);
+        bits[hash >> 3] |= 0x80 >> (hash & 7);
         h = h->next;
     }
 }
@@ -99,7 +99,7 @@ bool bloom_test(bloom_t filter, const void *item)
     while (h) {
         unsigned int hash = h->func(item);
         hash %= filter->size;
-        if (!(bits[hash >> 3] & (0x40 >> (hash & 7)))) {
+        if (!(bits[hash >> 3] & (0x80 >> (hash & 7)))) {
             return false;
         }
         h = h->next;
