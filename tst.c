@@ -4,23 +4,25 @@
 #define WRDMAX 128
 #define STKMAX (WRDMAX * 2)
 
-/* This macro is used to replace some repeating pattern for rotate and delete
- * the node on tenary search tree. It will append kid of victim on suitable
- * position, then free
- * victim itself. Note that 'kid' should be victim->lokid or victim->hikid
+/* This macro is used to replace some repeating pattern for rotating and
+ * deleting the node on tenary search tree. It will append kid of victim on
+ * suitable position, then free victim itself. Note that 'kid' should be
+ * victim->lokid or victim->hikid
  */
-#define del_node(parent, victim, root, kid) \
-    do {                                    \
-        if (!parent)                        \
-            *root = kid;                    \
-        else if (victim == parent->lokid)   \
-            parent->lokid = kid;            \
-        else if (victim == parent->hikid)   \
-            parent->hikid = kid;            \
-        else                                \
-            parent->eqkid = kid;            \
-        free(victim);                       \
-        victim = NULL;                      \
+#define del_node(parent, victim, root, kid)   \
+    do {                                      \
+        if (!parent) {                        \
+            *root = kid;                      \
+        } else {                              \
+            if (victim == parent->lokid)      \
+                parent->lokid = kid;          \
+            else if (victim == parent->hikid) \
+                parent->hikid = kid;          \
+            else                              \
+                parent->eqkid = kid;          \
+        }                                     \
+        free(victim);                         \
+        victim = NULL;                        \
     } while (0)
 
 
@@ -119,13 +121,9 @@ static void *tst_del_word(tst_node **root,
             } else /* can't rotate, return, leaving victim->eqkid NULL */
                 return NULL;
         } else if (victim->lokid) { /* only lokid, replace victim with lokid */
-            parent->eqkid = victim->lokid;
-            free(victim);
-            victim = NULL;
+            del_node(parent, victim, root, victim->lokid);
         } else if (victim->hikid) { /* only hikid, replace victim with hikid */
-            parent->eqkid = victim->hikid;
-            free(victim);
-            victim = NULL;
+            del_node(parent, victim, root, victim->hikid);
         } else { /* victim - no children, but parent has other children */
             if (victim == parent->lokid) { /* if parent->lokid - trim */
                 parent->lokid = NULL;
