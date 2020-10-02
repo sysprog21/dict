@@ -167,19 +167,21 @@ static void *tst_del_word(tst_node **root,
     return victim; /* return NULL on successful free, *node otherwise */
 }
 
-/** tst_ins_del() ins/del copy or reference of 's' from ternary search tree.
- *  insert all nodes required for 's' in tree at eqkid node of leaf. if 'del'
- *  is non-zero deletes 's' from tree, otherwise insert 's' at node->eqkid
- *  with node->key set to the nul-character after final node in search path. if
- *  'cpy' is non-zero allocate storage for 's', otherwise save pointer to 's'.
- *  if 's' already exists in tree, increment node->refcnt. (to be used for del).
- *  returns address of 's' in tree on successful insert (or on delete if refcnt
- *  non-zero), NULL on allocation failure on insert, or on successful removal
- *  of 's' from tree.
- */
-void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy)
+tst_node **next_node(tst_node **root, const char **s)
 {
-    int diff;
+    int diff = **s - (*root)->key;
+    if (diff == 0) {
+        (*s)++;
+        root = &(*root)->eqkid;
+    } else if (diff < 0)
+        root = &(*root)->lokid;
+    else
+        root = &(*root)->hikid;
+    return root;
+}
+
+void *tst_del(tst_node **root, const char *s, const int cpy)
+{
     const char *p = s;
     tst_stack stk = {.data = {NULL}, .idx = 0};
     tst_node *curr, **pcurr;
@@ -189,31 +191,36 @@ void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy)
     if (strlen(s) + 1 > STKMAX / 2) /* limit length to 1/2 STKMAX */
         return NULL;                /* 128 char word length is plenty */
 
-    pcurr = root;                     /* start at root */
-    while ((curr = *pcurr)) {         /* iterate to insertion node  */
-        diff = *p - curr->key;        /* get ASCII diff for >, <, = */
-        if (diff == 0) {              /* if char equal to node->key */
-            if (*p++ == 0) {          /* check if word is duplicate */
-                if (del) {            /* delete instead of insert   */
-                    (curr->refcnt)--; /* decrement reference count  */
-                    /* chk refcnt, del 's', return NULL on successful del */
-                    return tst_del_word(root, curr, &stk, cpy);
-                } else
-                    curr->refcnt++; /* increment refcnt if word exists */
-                return (void *) curr->eqkid; /* pointer to word / NULL on del */
-            }
-            pcurr = &(curr->eqkid); /* get next eqkid pointer address */
-        } else if (diff < 0) {      /* if char less than node->key */
-            pcurr = &(curr->lokid); /* get next lokid pointer address */
-        } else {                    /* if char greater than node->key */
-            pcurr = &(curr->hikid); /* get next hikid pointer address */
-        }
-        if (del)
-            tst_stack_push(&stk, curr); /* push node on stack for del */
+    pcurr = root;
+    while ((curr = *pcurr) && *p) {
+        tst_stack_push(&stk, curr); /* push node on stack for del */
+        pcurr = next_node(pcurr, &p);
     }
+    if (*p == 0) {
+        (*pcurr)->refcnt--;
+        return tst_del_word(root, curr, &stk, cpy);
+    }
+    return (void *) -1;
+}
 
-    if (del)
-        return (void *) -1;
+void *tst_ins(tst_node **root, const char *s, const int cpy)
+{
+    const char *p = s;
+    tst_node *curr, **pcurr;
+
+    if (!root || !s)
+        return NULL;                /* validate parameters */
+    if (strlen(s) + 1 > STKMAX / 2) /* limit length to 1/2 STKMAX */
+        return NULL;                /* 128 char word length is plenty */
+
+    pcurr = root;
+    while ((curr = *pcurr) && *p) {
+        pcurr = next_node(pcurr, &p);
+    }
+    if (*p == 0) {
+        curr->refcnt++;
+        return (void *) curr->eqkid;
+    }
 
     /* if not duplicate, insert remaining chars into tree rooted at curr */
     for (;;) {

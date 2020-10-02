@@ -79,7 +79,7 @@ int main(int argc, char **argv)
             j += (buf[i + j] == ',');
         }
         while (*Top) {
-            if (!tst_ins_del(&root, Top, INS, REF)) { /* fail to insert */
+            if (!tst_ins(&root, Top, REF)) { /* fail to insert */
                 fprintf(stderr, "error: memory exhausted, tst_insert.\n");
                 fclose(fp);
                 return 1;
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
                 res = NULL;
             else { /* update via tree traversal and bloom filter */
                 bloom_add(bloom, Top);
-                res = tst_ins_del(&root, Top, INS, REF);
+                res = tst_ins(&root, Top, REF);
             }
             t2 = tvgetf();
             if (res) {
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
             printf("  deleting %s\n", word);
             t1 = tvgetf();
             /* FIXME: remove reference to each string */
-            res = tst_ins_del(&root, word, DEL, REF);
+            res = tst_del(&root, word, REF);
             t2 = tvgetf();
             if (res)
                 printf("  delete failed.\n");

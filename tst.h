@@ -8,17 +8,9 @@
 /* forward declaration of ternary search tree */
 typedef struct tst_node tst_node;
 
-/** tst_ins_del() ins/del copy or reference of 's' from ternary search tree.
- *  insert all nodes required for 's' in tree at eqkid node of leaf. if 'del'
- *  is non-zero deletes 's' from tree, otherwise insert 's' at node->eqkid
- *  with node->key set to the nul-chracter after final node in search path. if
- *  'cpy' is non-zero allocate storage for 's', otherwise save pointer to 's'.
- *  if 's' already exists in tree, increment node->refcnt. (to be used for del).
- *  returns address of 's' in tree on successful insert (or on delete if refcnt
- *  non-zero), NULL on allocation failure on insert, or on successful removal
- *  of 's' from tree.
- */
-void *tst_ins_del(tst_node **root, const char *s, const int del, const int cpy);
+void *tst_ins(tst_node **root, const char *s, const int cpy);
+
+void *tst_del(tst_node **root, const char *s, const int cpy);
 
 /** tst_search(), non-recursive find of a string in ternary tree.
  *  returns pointer to 's' on success, NULL otherwise.
