@@ -51,6 +51,17 @@ int main(int argc, char **argv)
     } else
         printf("REF mechanism\n");
 
+    char *Top = word;
+    char *pool = NULL;
+
+    if (CPYmask) {  // Only allacte pool in REF mechanism
+        pool = malloc(poolsize);
+        if (!pool) {
+            fprintf(stderr, "Failed to allocate memory pool.\n");
+            return 1;
+        }
+        Top = pool;
+    }
 
     FILE *fp = fopen(IN_FILE, "r");
 
@@ -61,14 +72,6 @@ int main(int argc, char **argv)
     t1 = tvgetf();
 
     bloom_t bloom = bloom_create(TableSize);
-    char *Top = word;
-    char *pool;
-
-    if (CPYmask) {
-        /* memory pool */
-        pool = (char *) malloc(poolsize * sizeof(char));
-        Top = pool;
-    }
 
     char buf[WORDMAX];
     while (fgets(buf, WORDMAX, fp)) {
