@@ -171,7 +171,7 @@ static void *tst_del_word(tst_node **root,
  *  tree. If char '**s' equal to the key of current node, the char ptr '*s'
  *  move forward. Return a ptr to ptr to next node.
  */
-tst_node **next_node(tst_node **root, const char **s)
+static tst_node **next_node(tst_node **root, const char **s)
 {
     int diff = **s - (*root)->key;
     if (diff == 0) {
