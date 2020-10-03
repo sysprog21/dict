@@ -167,6 +167,10 @@ static void *tst_del_word(tst_node **root,
     return victim; /* return NULL on successful free, *node otherwise */
 }
 
+/** next_node() based on char '**s' find out the next node from ternary search
+ *  tree. If char '**s' equal to the key of current node, the char ptr '*s'
+ *  move forward. Return a ptr to ptr to next node.
+ */
 tst_node **next_node(tst_node **root, const char **s)
 {
     int diff = **s - (*root)->key;
@@ -180,6 +184,14 @@ tst_node **next_node(tst_node **root, const char **s)
     return root;
 }
 
+/** tst_del() del copy or reference of 's' from ternary search tree.
+ *  If 's' already exists in tree, decrement node->refcnt.
+ *  If node->refcnt is zero after decrement, remove assoshiated nodes.
+ *  If 'cpy' is non-zero, free the allocated space of string.
+ *  Returns the address of 's' in tree on delete if refcnt non-zero,
+ *  -1 on 's' not found in ternary search tree,
+ *  otherwise returns NULL.
+ */
 void *tst_del(tst_node **root, const char *s, const int cpy)
 {
     const char *p = s;
@@ -203,6 +215,15 @@ void *tst_del(tst_node **root, const char *s, const int cpy)
     return (void *) -1;
 }
 
+/** tst_ins() insert copy or reference of 's' from ternary search tree.
+ *  insert all nodes required for 's' in tree at eqkid node of leaf.
+ *  Insert 's' at node->eqkid with node->key set to the nul-character after
+ *  final node in search path.
+ *  If 'cpy' is non-zero allocate storage for 's', otherwise save pointer to
+ *  's'. If 's' already exists in tree, increment node->refcnt. (to be used
+ *  for del). returns address of 's' in tree on successful insert , NULL on
+ *  allocation failure.
+ */
 void *tst_ins(tst_node **root, const char *s, const int cpy)
 {
     const char *p = s;
