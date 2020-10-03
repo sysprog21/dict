@@ -5,7 +5,7 @@
 #define STKMAX (WRDMAX * 2)
 
 /* This macro is used to replace some repeating pattern for rotating and
- * deleting the node on tenary search tree. It will append kid of victim on
+ * deleting the node on ternary search tree. It will append kid of victim on
  * suitable position, then free victim itself. Note that 'kid' should be
  * victim->lokid or victim->hikid
  */
