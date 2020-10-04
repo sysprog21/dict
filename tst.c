@@ -167,9 +167,10 @@ static void *tst_del_word(tst_node **root,
     return victim; /* return NULL on successful free, *node otherwise */
 }
 
-/** next_node() based on char '**s' find out the next node from ternary search
- *  tree. If char '**s' equal to the key of current node, the char ptr '*s'
- *  move forward. Return a ptr to ptr to next node.
+/** next_node() based on char '**s' find out the next node for searching given
+ *  string from ternary search tree. If char '**s' equal to the key of current
+ *  node, the char ptr '*s' move forward for preparing next comparison.
+ *  Return a ptr to ptr to next node.
  */
 static tst_node **next_node(tst_node **root, const char **s)
 {
