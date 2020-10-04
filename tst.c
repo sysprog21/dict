@@ -400,7 +400,7 @@ void tst_free_all(tst_node *p)
     if (p->key)
         tst_free_all(p->eqkid);
     tst_free_all(p->hikid);
-    if (!p->key)
+    if (!p->key && p->refcnt > 0)
         free(p->eqkid);
     free(p);
 }
