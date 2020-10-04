@@ -71,7 +71,7 @@ plot: $(TESTS)
 		| grep -Eo '[0-9]+\.[0-9]+' > cpy_data.csv
 	sudo perf stat --repeat 100 \
                 -e cache-misses,cache-references,instructions,cycles \
-				./test_common --bench REF $(TEST_DATA)\
+		./test_common --bench REF $(TEST_DATA)\
 		| grep 'ternary_tree, loaded 206849 words'\
 		| grep -Eo '[0-9]+\.[0-9]+' > ref_data.csv
 
