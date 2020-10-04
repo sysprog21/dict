@@ -205,13 +205,13 @@ void *tst_del(tst_node **root, const char *s, const int cpy)
         return NULL;                /* 128 char word length is plenty */
 
     pcurr = root;
-    while ((curr = *pcurr) && *p) {
+    while ((curr = *pcurr)) {
+        if (*p == 0 && curr->key == 0) {
+            (*pcurr)->refcnt--;
+            return tst_del_word(root, curr, &stk, cpy);
+        }
         tst_stack_push(&stk, curr); /* push node on stack for del */
         pcurr = next_node(pcurr, &p);
-    }
-    if (*p == 0) {
-        (*pcurr)->refcnt--;
-        return tst_del_word(root, curr, &stk, cpy);
     }
     return (void *) -1;
 }
@@ -236,12 +236,12 @@ void *tst_ins(tst_node **root, const char *s, const int cpy)
         return NULL;                /* 128 char word length is plenty */
 
     pcurr = root;
-    while ((curr = *pcurr) && *p) {
+    while ((curr = *pcurr)) {
+        if (*p == 0 && curr->key == 0) {
+            curr->refcnt++;
+            return (void *) curr->eqkid;
+        }
         pcurr = next_node(pcurr, &p);
-    }
-    if (*p == 0) {
-        curr->refcnt++;
-        return (void *) curr->eqkid;
     }
 
     /* if not duplicate, insert remaining chars into tree rooted at curr */
