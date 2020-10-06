@@ -6,14 +6,14 @@ CFLAGS = -O0 -Wall -Werror -g
 
 # Control the build verbosity
 ifeq ("$(VERBOSE)","1")
-    Q :=
+    Q =
     VECHO = @true
 else
-    Q := @
+    Q = @
     VECHO = @printf
 endif
 
-GIT_HOOKS := .git/hooks/applied
+GIT_HOOKS = .git/hooks/applied
 
 .PHONY: all clean
 
@@ -26,11 +26,11 @@ $(GIT_HOOKS):
 OBJS_LIB = \
     tst.o bloom.o
 
-OBJS := \
+OBJS = \
     $(OBJS_LIB) \
     test_common.o \
 
-deps := $(OBJS:%.o=.%.o.d)
+deps = $(OBJS:%.o=.%.o.d)
 
 test_%: test_%.o $(OBJS_LIB)
 	$(VECHO) "  LD\t$@\n"
