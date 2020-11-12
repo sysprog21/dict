@@ -4,28 +4,6 @@
 #define WRDMAX 128
 #define STKMAX (WRDMAX * 2)
 
-/* This macro is used to replace some repeating pattern for rotating and
- * deleting the node on ternary search tree. It will append kid of victim on
- * suitable position, then free victim itself. Note that 'kid' should be
- * victim->lokid or victim->hikid
- */
-#define del_node(parent, victim, root, kid)   \
-    do {                                      \
-        if (!parent) {                        \
-            *root = kid;                      \
-        } else {                              \
-            if (victim == parent->lokid)      \
-                parent->lokid = kid;          \
-            else if (victim == parent->hikid) \
-                parent->hikid = kid;          \
-            else                              \
-                parent->eqkid = kid;          \
-        }                                     \
-        free(victim);                         \
-        victim = NULL;                        \
-    } while (0)
-
-
 /** ternary search tree node. */
 typedef struct tst_node {
     char key;               /* char key for node (null for node with string) */
@@ -64,7 +42,7 @@ static void *tst_stack_pop(tst_stack *s)
     return node;
 }
 
-/** delete current data-node and parent, update 'node' to new parent.
+/** delete non-referenced nodes from the stack, update 'node' to new parent.
  *  before delete the current refcnt is checked, if non-zero, occurrences
  *  of the word remain in buffer the node is not deleted, if refcnt zero,
  *  the node is deleted. if 'freeword = 1' the copy of word allocated and
@@ -73,98 +51,75 @@ static void *tst_stack_pop(tst_stack *s)
  *  NULL on success (deleted), otherwise returns the address of victim
  *  if refcnt non-zero.
  */
-static void *tst_del_word(tst_node **root,
-                          tst_node *node,
-                          tst_stack *stk,
-                          const int freeword)
+static void *tst_del_word(tst_stack *stk, const int freeword)
 {
-    tst_node *victim = node;               /* begin deletion w/victim */
-    tst_node *parent = tst_stack_pop(stk); /* parent to victim */
+    tst_node **pvictim = tst_stack_pop(stk);
+    tst_node *victim = *pvictim;
 
-    if (!victim->refcnt) {            /* if last occurrence */
-        if (!victim->key && freeword) /* check key is nul   */
-            free(victim->eqkid);      /* free string (data) */
-
-        /* remove unique suffix chain - parent & victim nodes
-         * have no children. simple remove until the first parent
-         * found with children.
+    if (victim->refcnt > 0) {
+        /* The string is still be referenced.
+         * Return the address of victim.
          */
-        while (!parent->lokid && !parent->hikid && !victim->lokid &&
-               !victim->hikid) {
-            parent->eqkid = NULL;
-            free(victim);
-            victim = parent;
-            parent = tst_stack_pop(stk);
-            if (!parent) { /* last word & root node */
-                free(victim);
-                return (void *) (*root = NULL);
-            }
-        }
+        printf("  %s  (refcnt: %u) not removed.\n", (char *) victim->eqkid,
+               victim->refcnt);
+        return victim;
+    }
 
-        /* check if victim is prefix for others (victim has lo/hi node).
-         * if both lo & hi children, check if lokid->hikid present, if not,
-         * move hikid to lokid->hikid, replace node with lokid and free node.
-         * if lokid->hikid present, check hikid->lokid. If not present, then
-         * move lokid to hikid->lokid, replace node with hikid free node.
+    if (freeword) /* Free the string in CPY mode. */
+        free(victim->eqkid);
+    victim->eqkid = NULL;
+
+    /* Remove unique suffix chain - victim have no children.
+     * Simply remove until the first node found with children.
+     */
+    while (!victim->lokid && !victim->hikid && !victim->eqkid) {
+        free(victim);
+        *pvictim = NULL;
+        pvictim = tst_stack_pop(stk);
+        if (!pvictim) {
+            /* Stack empty, which means reached the root of the tree. */
+            return NULL;
+        }
+        victim = *pvictim;
+    }
+
+    /* If 'victim->qekid' isn't NULL, 'victim' represent a node of another
+     * prefix string. In this case, the delete process is done and return NULL;
+     */
+    if (victim->eqkid)
+        return NULL;
+
+    /* If 'victim->eqkid' is NULL, 'victim' is a prefix node of deleting string.
+     * The prefix alse referencing by other strings. Try to rotate victim's
+     * subtrees for maintaining those strings.
+     */
+    if (victim->lokid && victim->hikid) {
+        /* If both 'lokid' and 'hikid' are exist, try to rotate one
+         * to be another's kid.
+         * Because of 'victim->lokid->key' alway lower than
+         * 'victim->lokid->key', the subtree can be rotated without comparison,
+         * vice versa.
+         * The only thing need to be aware of is the destination of the rotation
+         * should have no subtree otherwise the rotation isn't available.
+         * If both of the rotation are not available, the delete process is done
+         * and left a node with no 'eqkid'.
          */
-        if (victim->lokid && victim->hikid) { /* victim has both lokid/hikid */
-            if (!victim->lokid->hikid) {      /* check for hikid in lo tree */
-                /* rotate victim->hikid to victim->lokid->hikid, and
-                 * rotate victim->lokid to place of victim.
-                 */
-                victim->lokid->hikid = victim->hikid;
-                del_node(parent, victim, root, victim->lokid);
-            } else if (!victim->hikid->lokid) { /* check for lokid in hi tree */
-                /* opposite rotation */
-                victim->hikid->lokid = victim->lokid;
-                del_node(parent, victim, root, victim->hikid);
-            } else /* can't rotate, return, leaving victim->eqkid NULL */
-                return NULL;
-        } else if (victim->lokid) { /* only lokid, replace victim with lokid */
-            del_node(parent, victim, root, victim->lokid);
-        } else if (victim->hikid) { /* only hikid, replace victim with hikid */
-            del_node(parent, victim, root, victim->hikid);
-        } else { /* victim - no children, but parent has other children */
-            if (victim == parent->lokid) { /* if parent->lokid - trim */
-                parent->lokid = NULL;
-                free(victim);
-                victim = NULL;
-            } else if (victim == parent->hikid) { /* if parent->hikid - trim */
-                parent->hikid = NULL;
-                free(victim);
-                victim = NULL;
-            } else { /* victim was parent->eqkid, but parent->lo/hikid exists */
-                parent->eqkid = NULL;        /* set eqkid NULL */
-                free(victim);                /* free current victim */
-                victim = parent;             /* set parent = victim */
-                parent = tst_stack_pop(stk); /* get new parent */
-                /* if both victim hi/lokid are present */
-                if (victim->lokid && victim->hikid) {
-                    /* same checks and rotations as above */
-                    if (!victim->lokid->hikid) {
-                        victim->lokid->hikid = victim->hikid;
-                        del_node(parent, victim, root, victim->lokid);
-                    } else if (!victim->hikid->lokid) {
-                        victim->hikid->lokid = victim->lokid;
-                        del_node(parent, victim, root, victim->hikid);
-                    } else
-                        return NULL;
-                }
-                /* if only lokid, rewire to parent */
-                else if (victim->lokid) {
-                    del_node(parent, victim, root, victim->lokid);
-                }
-                /* if only hikid, rewire to parent */
-                else if (victim->hikid) {
-                    del_node(parent, victim, root, victim->hikid);
-                }
-            }
-        }
-    } else /* node->refcnt non-zero */
-        printf("  %s  (refcnt: %u) not removed.\n", (char *) node->eqkid,
-               node->refcnt);
+        if (!victim->lokid->hikid) {
+            victim->lokid->hikid = victim->hikid;
+            *pvictim = victim->lokid;
+        } else if (!victim->hikid->lokid) {
+            victim->hikid->lokid = victim->lokid;
+            *pvictim = victim->hikid;
+        } else /* The subtrees are non-rotatable. */
+            return NULL;
+    } else if (victim->lokid) {
+        *pvictim = victim->lokid;
+    } else if (victim->hikid) {
+        *pvictim = victim->hikid;
+    }
 
-    return victim; /* return NULL on successful free, *node otherwise */
+    free(victim);
+    return NULL;
 }
 
 /** next_node()find out the next node based on the char from 's' for searching
@@ -206,11 +161,11 @@ void *tst_del(tst_node **root, const char *s, const int cpy)
 
     pcurr = root;
     while ((curr = *pcurr)) {
+        tst_stack_push(&stk, pcurr); /* push ptr to node on stack for del */
         if (*p == 0 && curr->key == 0) {
             (*pcurr)->refcnt--;
-            return tst_del_word(root, curr, &stk, cpy);
+            return tst_del_word(&stk, cpy);
         }
-        tst_stack_push(&stk, curr); /* push node on stack for del */
         pcurr = next_node(pcurr, &p);
     }
     return (void *) -1;
