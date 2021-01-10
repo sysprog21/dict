@@ -245,24 +245,26 @@ void *tst_ins(tst_node **root, const char *s, const int cpy)
     }
 }
 
-/** tst_search(), non-recursive find of a string internary tree.
- *  returns pointer to 's' on success, NULL otherwise.
+/** tst_search() finds a given string in the ternary tree, non recursively.
+ *  Returns a pointer to the string on success, and NULL otherwise.
  */
 void *tst_search(const tst_node *p, const char *s)
 {
     const tst_node *curr = p;
 
-    while (curr) {                 /* loop over each char in 's' */
-        int diff = *s - curr->key; /* calculate the difference */
-        if (diff == 0) {           /* handle the equal case */
-            if (*s == 0)           /* if *s = curr->key = nul-char, 's' found */
-                return (void *) curr->eqkid; /* return pointer to 's' */
+    /* Loops over each character in 's' */
+    while (curr) {
+        int diff = *s - curr->key;
+        if (diff == 0) {
+            /* Found identical string */
+            if (*s == '\0')
+                return (void *) curr->eqkid; /* pointer to the string */
             s++;
             curr = curr->eqkid;
-        } else if (diff < 0) /* handle the less than case */
+        } else if (diff < 0)
             curr = curr->lokid;
         else
-            curr = curr->hikid; /* handle the greater than case */
+            curr = curr->hikid;
     }
     return NULL;
 }

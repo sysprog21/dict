@@ -36,8 +36,8 @@ void *tst_del(tst_node **root, const char *s, const int cpy);
  */
 void *tst_ins(tst_node **root, const char *s, const int cpy);
 
-/** tst_search(), non-recursive find of a string in ternary tree.
- *  returns pointer to 's' on success, NULL otherwise.
+/** tst_search() finds a given string in the ternary tree, non recursively.
+ *  Returns a pointer to the string on success, and NULL otherwise.
  */
 void *tst_search(const tst_node *p, const char *s);
 
