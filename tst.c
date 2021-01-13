@@ -171,14 +171,21 @@ void *tst_del(tst_node **root, const char *s, const int cpy)
     return (void *) -1;
 }
 
-/** tst_ins() insert copy or reference of 's' from ternary search tree.
- *  insert all nodes required for 's' in tree at eqkid node of leaf.
- *  Insert 's' at node->eqkid with node->key set to the nul-character after
- *  final node in search path.
- *  If 'cpy' is non-zero allocate storage for 's', otherwise save pointer to
- *  's'. If 's' already exists in tree, increment node->refcnt. (to be used
- *  for del). returns address of 's' in tree on successful insert , NULL on
- *  allocation failure.
+/** tst_ins() inserts copy or reference of a string (pointed to by 's') into
+ *  ternary search tree (TST).
+ *  If the string already exists in the tree, increment 'node->refcnt', which is
+ *  used for deletion. Otherwise, all nodes required for the string are inserted
+ *  into 'eqkid' of the leaf node in the TST, one after the other (including the
+ *  null character). When all insertions are done, assign the pointer to string
+ *  to 'eqkid' of the current node.
+ *  1. Copy: If 'cpy' is non-zero, duplicate the string and assign the address
+ *  of the duplicate to 'eqkid'.
+ *  2. Reference: If 'cpy' is zero, assign 's' to 'eqkid'. Note that 's' points
+ *  to the string, which is previously stored in the memory pool.
+ *
+ *  Return value:
+ *  tst_ins() returns a pointer to the string on successful insertion, and
+ *  returns NULL on allocation failure.
  */
 void *tst_ins(tst_node **root, const char *s, const int cpy)
 {
@@ -192,14 +199,17 @@ void *tst_ins(tst_node **root, const char *s, const int cpy)
 
     pcurr = root;
     while ((curr = *pcurr)) {
-        if (*p == 0 && curr->key == 0) {
+        /* Returns a pointer to the string if it is already in the ternary
+         * search tree (TST). */
+        if (*p == '\0' && curr->key == '\0') {
             curr->refcnt++;
-            return (void *) curr->eqkid;
+            return (void *) curr->eqkid; /* pointer to the string */
         }
         pcurr = next_node(pcurr, &p);
     }
 
-    /* if not duplicate, insert remaining chars into tree rooted at curr */
+    /* If 's' is not in the TST, insert the remaining chars into the tree with
+     * root node 'curr'. */
     for (;;) {
         /* allocate memory for node, and fill. use calloc (or include
          * string.h and initialize w/memset) to avoid valgrind warning
@@ -209,22 +219,24 @@ void *tst_ins(tst_node **root, const char *s, const int cpy)
             fprintf(stderr, "error: tst_insert(), memory exhausted.\n");
             return NULL;
         }
+
+        /* Initializes the new node */
         curr = *pcurr;
         curr->key = *p;
         curr->refcnt = 1;
         curr->lokid = curr->hikid = curr->eqkid = NULL;
 
-        /* Place nodes until end of the string, at end of stign allocate
-         * space for data, copy data as final eqkid, and return.
-         */
-        if (*p++ == 0) {
-            if (cpy) { /* allocate storage for 's' */
+        /* When the end of the string is reached, assign the pointer to the
+         * string to 'curr->eqkid'. */
+        if (*p++ == '\0') {
+            if (cpy) { /* allocate storage space for 's' */
                 const char *eqdata = strdup(s);
                 if (!eqdata)
                     return NULL;
                 curr->eqkid = (tst_node *) eqdata;
                 return (void *) eqdata;
-            } else { /* save pointer to 's' (allocated elsewhere) */
+            } else { /* the string is pointed to by 's' and is already stored in
+                        a memory pool */
                 curr->eqkid = (tst_node *) s;
                 return (void *) s;
             }
@@ -233,24 +245,26 @@ void *tst_ins(tst_node **root, const char *s, const int cpy)
     }
 }
 
-/** tst_search(), non-recursive find of a string internary tree.
- *  returns pointer to 's' on success, NULL otherwise.
+/** tst_search() finds a given string in the ternary tree, non recursively.
+ *  Returns a pointer to the string on success, and NULL otherwise.
  */
 void *tst_search(const tst_node *p, const char *s)
 {
     const tst_node *curr = p;
 
-    while (curr) {                 /* loop over each char in 's' */
-        int diff = *s - curr->key; /* calculate the difference */
-        if (diff == 0) {           /* handle the equal case */
-            if (*s == 0)           /* if *s = curr->key = nul-char, 's' found */
-                return (void *) curr->eqkid; /* return pointer to 's' */
+    /* Loops over each character in 's' */
+    while (curr) {
+        int diff = *s - curr->key;
+        if (diff == 0) {
+            /* Found identical string */
+            if (*s == '\0')
+                return (void *) curr->eqkid; /* pointer to the string */
             s++;
             curr = curr->eqkid;
-        } else if (diff < 0) /* handle the less than case */
+        } else if (diff < 0)
             curr = curr->lokid;
         else
-            curr = curr->hikid; /* handle the greater than case */
+            curr = curr->hikid;
     }
     return NULL;
 }

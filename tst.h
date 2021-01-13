@@ -18,19 +18,26 @@ typedef struct tst_node tst_node;
  */
 void *tst_del(tst_node **root, const char *s, const int cpy);
 
-/** tst_ins() insert copy or reference of 's' from ternary search tree.
- *  insert all nodes required for 's' in tree at eqkid node of leaf.
- *  Insert 's' at node->eqkid with node->key set to the nul-character after
- *  final node in search path.
- *  If 'cpy' is non-zero allocate storage for 's', otherwise save pointer to
- *  's'. If 's' already exists in tree, increment node->refcnt. (to be used
- *  for del). returns address of 's' in tree on successful insert , NULL on
- *  allocation failure.
+/** tst_ins() inserts copy or reference of a string (pointed to by 's') into
+ *  ternary search tree (TST).
+ *  If the string already exists in the tree, increment 'node->refcnt', which is
+ *  used for deletion. Otherwise, all nodes required for the string are inserted
+ *  into 'eqkid' of the leaf node in the TST, one after the other (including the
+ *  null character). When all insertions are done, assign the pointer to string
+ *  to 'eqkid' of the current node.
+ *  1. Copy: If 'cpy' is non-zero, duplicate the string and assign the address
+ *  of the duplicate to 'eqkid'.
+ *  2. Reference: If 'cpy' is zero, assign 's' to 'eqkid'. Note that 's' points
+ *  to the string, which is previously stored in the memory pool.
+ *
+ *  Return value:
+ *  tst_ins() returns a pointer to the string on successful insertion, and
+ *  returns NULL on allocation failure.
  */
 void *tst_ins(tst_node **root, const char *s, const int cpy);
 
-/** tst_search(), non-recursive find of a string in ternary tree.
- *  returns pointer to 's' on success, NULL otherwise.
+/** tst_search() finds a given string in the ternary tree, non recursively.
+ *  Returns a pointer to the string on success, and NULL otherwise.
  */
 void *tst_search(const tst_node *p, const char *s);
 
